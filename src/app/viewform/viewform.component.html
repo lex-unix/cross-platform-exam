@@ -1,15 +1,14 @@
-<app-form (authorAdd)="addAuthor($event)"></app-form>
-<ion-card *ngFor="let author of authors; let i = index">
+<app-form (ticketCategoryAdd)="addCategory($event)"></app-form>
+<ion-card *ngFor="let ticketCategory of ticketCategories; let i = index">
   <ion-card-header>
-    <ion-card-title>{{ author.name }}</ion-card-title>
-    <ion-card-subtitle>
-      {{ author.date_birth }} - {{ author.date_death }}
-    </ion-card-subtitle>
+    <ion-card-title>Категорія: {{ ticketCategory.category }}</ion-card-title>
   </ion-card-header>
   <ion-card-content>
-    {{ author.biography }}
-    <ion-item *ngFor="let book of author.books">
-      {{ book }}
-    </ion-item>
+    Прибуток з категорії: {{ ticketCategory.totalSales }}
   </ion-card-content>
+</ion-card>
+<ion-card *ngIf="getTotalPrice() > 0">
+  <ion-card-header>
+    <ion-card-title> Загальний прибуток: {{ getTotalPrice() }} </ion-card-title>
+  </ion-card-header>
 </ion-card>

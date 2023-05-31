@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Author } from '../form/class/author';
+import { Ticket } from '../form/class/ticket-category';
 
 @Component({
   selector: 'app-viewform',
@@ -7,20 +7,25 @@ import { Author } from '../form/class/author';
   styleUrls: ['./viewform.component.scss'],
 })
 export class ViewformComponent implements OnInit {
-  showUpdate = false;
-  authors: Author[] = [];
+  ticketCategories: Ticket[] = [];
+  totalPrice: number = 0;
 
   constructor() {}
 
-  addAuthor(event: any) {
-    console.log(event);
-    if (event as Author) {
-      let author: Author = event;
-      this.authors.push(author);
-      console.log(this.authors);
+  addCategory(event: any) {
+    if (event as Ticket[]) {
+      let ticketCategory: Ticket = event;
+      this.ticketCategories.push(ticketCategory);
     } else {
       throw new Error('Error of type');
     }
+  }
+
+  getTotalPrice() {
+    return this.ticketCategories.reduce(
+      (acc, item) => acc + item.totalSales,
+      0
+    );
   }
 
   ngOnInit() {}

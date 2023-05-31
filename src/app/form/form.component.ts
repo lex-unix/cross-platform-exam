@@ -1,10 +1,10 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { FormControl, FormGroup, FormArray, FormBuilder } from '@angular/forms';
-import { Author } from './class/author';
+import { FormGroup, FormBuilder, FormArray, FormControl } from '@angular/forms';
+import { Ticket } from './class/ticket-category';
 import { Validators } from '@angular/forms';
-import { dateValidator } from './service/date-validator';
 import { AlertController } from '@ionic/angular';
-import { ValidatorDayDateService } from './service/validator-day-date-service';
+import { ValidatorCategoryService } from './service/validate-category';
+import { CalcService } from '../calc.service';
 
 @Component({
   selector: 'app-form',
@@ -13,47 +13,35 @@ import { ValidatorDayDateService } from './service/validator-day-date-service';
 })
 export class FormComponent implements OnInit {
   formGroup!: FormGroup;
-  author!: Author;
-  @Output() authorAdd: EventEmitter<Author> = new EventEmitter<Author>();
+  @Output() ticketCategoryAdd: EventEmitter<Ticket> =
+    new EventEmitter<Ticket>();
 
   constructor(
     private formBuilder: FormBuilder,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private calcServie: CalcService
   ) {
     this.formGroup = this.formBuilder.group({
-      authorName: ['', [Validators.required]],
-      authorDateBirth: ['', [dateValidator()]],
-      authorDateDeath: ['', [dateValidator()]],
-      authorBio: [''],
-      books: new FormArray([new FormControl()]),
+      numOfCategories: ['', [Validators.required]],
+      numOfSoldTickets: new FormArray([new FormControl()]),
     });
   }
 
-  addBooks() {
-    (this.formGroup.controls['books'] as FormArray).push(new FormControl());
-  }
-
-  deleteBook(i: any) {
-    (this.formGroup.controls['books'] as FormArray).removeAt(i);
-  }
-
-  getControls() {
-    return (this.formGroup.get('books') as FormArray).controls;
-  }
-
   onSubmit() {
-    let name = this.formGroup.value.authorName;
-    let d1 = this.formGroup.value.authorDateBirth;
-    let d2 = this.formGroup.value.authorDateDeath;
-    let bio = this.formGroup.value.authorBio;
-    let books = this.formGroup.value.books;
-    let valid = new ValidatorDayDateService();
-    if (valid.validate_diff_date(d1, d2)) {
-      this.author = new Author(name, d1, d2, bio, books);
-      this.authorAdd.emit(this.author);
-      console.log(this.author);
+    let { numOfCategories } = this.formGroup.value;
+    numOfCategories = Number(numOfCategories);
+    const validatator = new ValidatorCategoryService();
+    if (validatator.checkRange(numOfCategories)) {
+      for (let category = 0; category < numOfCategories; category++) {
+        const ticketCategory = new Ticket(category);
+
+        ticketCategory.totalSales =
+          this.calcServie.calculatePrice(ticketCategory);
+
+        this.ticketCategoryAdd.emit(ticketCategory);
+      }
     } else {
-      this.presentAlert('Дата смерті невірна');
+      this.presentAlert('Кільксіть категорій повинна бути від 3-х до 10');
     }
   }
 
